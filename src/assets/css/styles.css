@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+    body{
+        @apply min-w-[280px] overflow-x-hidden bg-white text-slate-700 flex flex-col;
+    }
+    .wrapper{
+        @apply w-[96%] md:w-[80%] mx-auto;
+    }
+}
