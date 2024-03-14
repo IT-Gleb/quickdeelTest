@@ -32,7 +32,7 @@ const { Size, tasks, thisDate, checkedTasks } = storeToRefs(store);
   <div
     v-if="Size > 0"
     :class="
-      Size > 6
+      Size > 1
         ? 'w-fit mx-auto grid grid-cols-1 gap-y-3 md:grid-cols-2 md:gap-3 xl:grid-cols-3'
         : 'w-fit mx-auto grid grid-cols-1 gap-y-3'
     "
