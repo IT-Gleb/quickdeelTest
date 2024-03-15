@@ -15,7 +15,7 @@ const thisTask = ref<TTask>(props.paramTask);
 const txtTask = ref<string>(props.paramTask.name);
 const isComplete = ref<boolean>(props.paramTask.isComplete);
 const isEdit = ref<boolean>(props.isEdit);
-const taskRef = ref<HTMLInputElement>();
+const taskInputRef = ref<HTMLInputElement>();
 const isExpire = ref<boolean>(false);
 
 const store = useTasksStore();
@@ -29,7 +29,8 @@ function setupNameData() {
 //Если нажата кнопка Редактирования
 const setEditMode = () => {
   isEdit.value = !isEdit.value;
-  if (isEdit.value) taskRef.value?.focus();
+
+  //if (isEdit.value) taskRef.value?.focus();
   if (!isEdit.value) setupNameData();
 };
 
@@ -53,10 +54,15 @@ const deleteThisTask = () => {
   if (!isEdit.value) deleteTask(thisTask.value);
 };
 
+const thisFocus = (e: any) => {
+  e.currentTarget.select();
+};
+
 watchEffect(() => {
   isExpire.value = compareTaskExpired(
     thisTask.value.dateTask + "T" + thisTask.value.timeExpiredTask
   );
+  if (isEdit.value) taskInputRef.value?.focus();
 });
 </script>
 
@@ -91,6 +97,7 @@ watchEffect(() => {
 
       <div class="flex items-center gap-x-2 p-0 m-0">
         <input
+          v-if="!isEdit"
           class="cursor-pointer w-[16px] h-[16px]"
           type="checkbox"
           name="CompletedTask"
@@ -113,8 +120,8 @@ watchEffect(() => {
       "
     >
       <input
-        v-show="isEdit"
-        ref="taskRef"
+        v-if="isEdit"
+        ref="taskInputRef"
         class="w-[100%] p-2 outline-none border-2 border-blue-900/75 rounded-md"
         :class="isEdit ? ' bg-white' : 'bg-blue-100'"
         type="text"
@@ -123,6 +130,7 @@ watchEffect(() => {
         name="TaskName"
         id="TaskName"
         v-model="txtTask"
+        @focus="thisFocus"
         @keydown="checkEdit"
       />
       <p
