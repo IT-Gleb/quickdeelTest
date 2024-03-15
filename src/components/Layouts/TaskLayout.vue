@@ -5,9 +5,11 @@ import workBtn from "../UI/Buttons/workBtn.vue";
 import TasksList from "../UI/TasksList.vue";
 import { useTasksStore } from "../../Store/store";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 
 const isShowNewTask = ref<boolean>(false);
 const addTitle = ref<string>("Новая задача");
+const thisRouter = useRouter();
 
 const store = useTasksStore();
 const { clearTasks, getTasksFromLocalStore } = store;
@@ -20,6 +22,10 @@ const viewForm = () => {
 
 const clearAllTasks = () => {
   clearTasks();
+};
+
+const reloadPage = () => {
+  thisRouter.go(0);
 };
 
 onMounted(() => {
@@ -36,6 +42,11 @@ onMounted(() => {
           v-if="Size > 0"
           @work="clearAllTasks"
           title="Очистить все задачи"
+        ></work-btn>
+        <work-btn
+          v-if="Size > 0"
+          title="Обновить страницу"
+          @work="reloadPage"
         ></work-btn>
       </div>
       <add-form v-if="isShowNewTask"></add-form>

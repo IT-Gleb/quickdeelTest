@@ -26,6 +26,14 @@ export const useTasksStore = defineStore("tasks", () => {
     return res;
   });
 
+  const getLastTaskExparedTime = computed(() => {
+    let res: string = "";
+    if (Size.value > 0) {
+      res = tasks.value[Size.value - 1].timeExpiredTask as string;
+    }
+    return res;
+  });
+
   const thisDate = computed(() => {
     let tmpData: string = "";
     tmpData = tasks.value.reduce((acc, item) => {
@@ -111,5 +119,6 @@ export const useTasksStore = defineStore("tasks", () => {
     getTasksFromLocalStore,
     getLastTaskTime,
     getLastTaskDate,
+    getLastTaskExparedTime,
   };
 });

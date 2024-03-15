@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue";
-import { getNowTime, getNowDate, TTask } from "../../../lib";
+import {
+  getNowTime,
+  getNowDate,
+  TTask,
+  getExpiredTime,
+  getExpiredTimefromString,
+} from "../../../lib";
 import workBtn from "../Buttons/workBtn.vue";
 import { useTasksStore } from "../../../Store/store";
 import { storeToRefs } from "pinia";
@@ -8,12 +14,14 @@ import { storeToRefs } from "pinia";
 const inputRef = ref<HTMLInputElement>();
 
 const taskTime = ref<number | string>(0);
+const taskExpiredTime = ref<number | string>(0);
 const taskText = ref<string>("");
 const taskDate = ref<string>("");
 const showBtn = ref<boolean>(false);
 const store = useTasksStore();
 const { newTask } = store;
-const { getLastTaskTime, getLastTaskDate } = storeToRefs(store);
+const { getLastTaskTime, getLastTaskDate, getLastTaskExparedTime, Size } =
+  storeToRefs(store);
 
 const formSubmit = (event: Event) => {
   event.preventDefault();
@@ -32,24 +40,53 @@ const clickBtn = () => {
     id: crypto.randomUUID(),
     dateTask: taskDate.value,
     timeTask: taskTime.value,
+    timeExpiredTask: taskExpiredTime.value,
     name: taskText.value,
     isComplete: false,
   };
 
   newTask(a_Task);
 
-  taskTime.value = "";
-  taskText.value = "";
+  //console.log(a_Task.timeTask);
 
-  taskDate.value = getNowDate();
-  taskTime.value = getNowTime();
+  taskTime.value = "";
+  taskExpiredTime.value = "";
+  taskText.value = "";
+  //-----------------Установить время на основе созданных задач---------------
+  if (Size.value < 1) {
+    taskDate.value = getNowDate();
+    taskTime.value = getNowTime();
+    taskExpiredTime.value = getExpiredTime(15);
+  }
+  if (Size.value > 0) {
+    taskDate.value = getLastTaskDate.value;
+    taskTime.value = getLastTaskExparedTime.value;
+    taskExpiredTime.value = getExpiredTimefromString(
+      taskDate.value,
+      taskTime.value,
+      15
+    );
+  }
+  //--------------------------------------------------------
 
   if (inputRef.value) inputRef.value.focus();
 };
 
 onMounted(() => {
-  taskDate.value = getNowDate();
-  taskTime.value = getNowTime();
+  if (Size.value < 1) {
+    taskDate.value = getNowDate();
+    taskTime.value = getNowTime();
+    taskExpiredTime.value = getExpiredTime(15);
+  }
+  if (Size.value > 0) {
+    taskDate.value = getLastTaskDate.value;
+    taskTime.value = getLastTaskExparedTime.value;
+    taskExpiredTime.value = getExpiredTimefromString(
+      taskDate.value,
+      taskTime.value,
+      15
+    );
+  }
 
   inputRef.value?.focus();
   //console.log(taskDate.value, taskTime.value, taskText.value);
@@ -102,6 +139,21 @@ watchEffect(() => {
             type="time"
             id="tsTime"
             v-model="taskTime"
+          />
+        </label>
+        <label class="flex flex-col gap-y-2 text-[0.8rem]/[1rem] font-medium">
+          <div class="w-[100%] flex items-center justify-between">
+            <span class="font-bold">Задача закончиться:</span>
+            <span class="text-slate-500 text-[0.7rem]/[1rem]"
+              >Последняя задача, окончание:
+              <span class="font-bold">{{ getLastTaskExparedTime }}</span></span
+            >
+          </div>
+          <input
+            class="p-2 bg-slate-100 text-[1rem]/[1.2rem] rounded-md focus:border-2 focus:border-blue-700 focus:outline-none focus:bg-slate-300"
+            type="time"
+            id="tsExpiredTime"
+            v-model="taskExpiredTime"
           />
         </label>
 

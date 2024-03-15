@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import EditBtn from "./UI/Buttons/EditBtn.vue";
 import DeleteBtn from "./UI/Buttons/DeleteBtn.vue";
-import { TTask } from "../lib";
+import { TTask, compareTaskExpired } from "../lib";
 import { useTasksStore } from "../Store/store";
 
 const props = defineProps<{
@@ -15,7 +15,8 @@ const thisTask = ref<TTask>(props.paramTask);
 const txtTask = ref<string>(props.paramTask.name);
 const isComplete = ref<boolean>(props.paramTask.isComplete);
 const isEdit = ref<boolean>(props.isEdit);
-const taskRef = ref();
+const taskRef = ref<HTMLInputElement>();
+const isExpire = ref<boolean>(false);
 
 const store = useTasksStore();
 const { editTask, editIsCompleteTask, deleteTask } = store;
@@ -51,6 +52,12 @@ const setIsComplete = (event: Event) => {
 const deleteThisTask = () => {
   if (!isEdit.value) deleteTask(thisTask.value);
 };
+
+watchEffect(() => {
+  isExpire.value = compareTaskExpired(
+    thisTask.value.dateTask + "T" + thisTask.value.timeExpiredTask
+  );
+});
 </script>
 
 <template>
@@ -59,17 +66,27 @@ const deleteThisTask = () => {
     :class="
       isComplete
         ? 'border-none'
+        : isExpire
+        ? 'border-2 border-black'
         : 'border-2 border-blue-400/50 border-r-blue-600/60 border-b-blue-600/60'
     "
   >
     <header
       class="w-[100%] max-h-[30px] text-black p-2 flex items-center justify-between"
-      :class="isComplete ? ' bg-slate-400/50' : ' bg-blue-300/50'"
+      :class="
+        isComplete
+          ? ' bg-slate-400/50'
+          : isExpire
+          ? 'bg-rose-400 text-white/70'
+          : ' bg-blue-300/50'
+      "
     >
       <span class="text-[0.8rem]/[1rem] font-medium">{{ paramIndex }}.</span>
       <span class="text-[0.7rem]/[1rem] font-semibold"
-        >{{ thisTask.timeTask }} -
-        {{ isComplete ? "[Выполнено]" : "Начало задачи" }}
+        >{{ thisTask.timeTask }} - {{ thisTask.timeExpiredTask }}
+        {{
+          isComplete ? "[Выполнено]" : isExpire ? "[Просрочено]" : "[Период]"
+        }}
       </span>
 
       <div class="flex items-center gap-x-2 p-0 m-0">
@@ -87,22 +104,36 @@ const deleteThisTask = () => {
     </header>
     <main
       class="p-2"
-      :class="isComplete ? ' bg-slate-100/50' : 'bg-blue-100/50'"
+      :class="
+        isComplete
+          ? ' bg-slate-100/50'
+          : isExpire
+          ? 'bg-rose-300 text-black'
+          : 'bg-blue-100/50'
+      "
     >
       <input
-        v-if="isEdit"
-        class="w-[100%] p-2 outline-none border-2 border-blue-900/75 rounded-md bg-blue-100"
+        v-show="isEdit"
         ref="taskRef"
+        class="w-[100%] p-2 outline-none border-2 border-blue-900/75 rounded-md"
+        :class="isEdit ? ' bg-white' : 'bg-blue-100'"
         type="text"
         placeholder="Введите что-нибудь..."
         autocomplete="off"
         name="TaskName"
+        id="TaskName"
         v-model="txtTask"
         @keydown="checkEdit"
       />
       <p
         class="w-[100%] text-blue-700 first-letter:uppercase p-2"
-        :class="isComplete ? ' line-through text-slate-400' : ''"
+        :class="
+          isComplete
+            ? ' line-through text-slate-400'
+            : isExpire
+            ? 'bg-rose-300 text-yellow-200/80'
+            : ''
+        "
         v-if="!isEdit"
       >
         {{ txtTask }}
@@ -110,7 +141,13 @@ const deleteThisTask = () => {
     </main>
     <footer
       class="w-[100%] min-h-[10px] p-2"
-      :class="isComplete ? ' bg-slate-200/50' : ' bg-blue-200/50'"
+      :class="
+        isComplete
+          ? ' bg-slate-200/50'
+          : isExpire
+          ? ' bg-rose-400/80'
+          : ' bg-blue-200/50'
+      "
     ></footer>
   </div>
 </template>

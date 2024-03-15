@@ -57,12 +57,12 @@ const { Size, tasks, thisDate, checkedTasks } = storeToRefs(store);
 .listToDo-move,
 .listToDo-enter-active,
 .listToDo-leave-active {
-  transition: all 0.25s ease;
+  transition: all 0.35s ease-out;
 }
 .listToDo-enter-from,
 .listToDo-leave-to {
   opacity: 0;
-  transform: translateY(-100px);
+  transform: translateY(-120px);
 }
 .listToDo-leave-active {
   position: absolute;
