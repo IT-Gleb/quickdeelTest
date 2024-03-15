@@ -82,7 +82,6 @@ export function compareTaskExpired(paramExpiredStringDateTime: string) {
   const tempDate1 = new Date(paramExpiredStringDateTime);
   const nowDate = new Date();
 
-  //if (nowDate.getTime() > tempDate1.getTime()) console.log("Now > task");
   //Текущая дата больше конечной
   res = nowDate.getTime() > tempDate1.getTime();
   return res;

@@ -30,8 +30,7 @@ function setupNameData() {
 const setEditMode = () => {
   isEdit.value = !isEdit.value;
 
-  //if (isEdit.value) taskRef.value?.focus();
-  if (!isEdit.value) setupNameData();
+  //if (!isEdit.value) setupNameData();
 };
 
 //При активном инпуте если нажата клавиша Enter
@@ -56,6 +55,14 @@ const deleteThisTask = () => {
 
 const thisFocus = (e: any) => {
   e.currentTarget.select();
+};
+
+//Убрали фокус при редактировании
+const thisBlur = () => {
+  if (isEdit.value) {
+    setupNameData();
+    isEdit.value = false;
+  }
 };
 
 watchEffect(() => {
@@ -105,7 +112,10 @@ watchEffect(() => {
           :title="isComplete ? 'Отменить выполнена' : 'Пометить как выполнена'"
           @change="setIsComplete"
         />
-        <edit-btn v-if="!isComplete" @edit-task-name="setEditMode"></edit-btn>
+        <edit-btn
+          v-if="!isComplete && !isEdit"
+          @edit-task-name="setEditMode"
+        ></edit-btn>
         <delete-btn @delete-task="deleteThisTask"></delete-btn>
       </div>
     </header>
@@ -131,6 +141,7 @@ watchEffect(() => {
         id="TaskName"
         v-model="txtTask"
         @focus="thisFocus"
+        @blur="thisBlur"
         @keydown="checkEdit"
       />
       <p
@@ -148,14 +159,20 @@ watchEffect(() => {
       </p>
     </main>
     <footer
-      class="w-[100%] min-h-[10px] p-2"
+      class="w-[100%] min-h-[10px] p-2 text-[0.65rem]/[1rem]"
       :class="
         isComplete
           ? ' bg-slate-200/50'
           : isExpire
-          ? ' bg-rose-400/80'
-          : ' bg-blue-200/50'
+          ? ' bg-rose-400/80 text-white'
+          : ' bg-blue-200/50 text-black'
       "
-    ></footer>
+    >
+      {{
+        isEdit
+          ? "Закончить редактирование - Enter или клик вне области редактирования."
+          : ""
+      }}
+    </footer>
   </div>
 </template>
