@@ -36,7 +36,7 @@ onMounted(() => {
 <template>
   <div>
     <section class="wrapper">
-      <div class="flex items-center gap-x-4">
+      <div class="flex items-center flex-wrap gap-4">
         <work-btn @work="viewForm" :title="addTitle"></work-btn>
         <work-btn
           v-if="Size > 0"
